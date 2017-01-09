@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="3dp"
+        android:id="@+id/post_title_container"
+        android:background="?selectableItemBackground"
+        >
+        <ImageView
+            android:id="@+id/thumbnail_imageview"
+            android:layout_width="@dimen/content_image_view_size"
+            android:layout_height="@dimen/content_image_view_size"
+            android:scaleType="centerCrop"
+
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="3dp"
+            >
+            <TextView
+                android:id="@+id/title_textview"
+                style="@style/TextBodyNormal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This is a sample title. It can usually be longer than this. This is a sample title. It can usually be longer than this This is a sample title. It can usually be longer than this This is a sample title. It can usually be longer than this This is a sample title. It can usually be longer than this"
+                android:maxLines="4"
+                android:ellipsize="end"
+
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/subreddit_textview"
+                    style="@style/TextCaptionSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="r/subreddit" />
+
+                <TextView
+                    style="@style/TextCaptionSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/spacing_tiny"
+                    android:layout_marginRight="@dimen/spacing_tiny"
+                    android:layout_marginStart="@dimen/spacing_tiny"
+                    android:layout_marginEnd="@dimen/spacing_tiny"
+                    android:text="@string/solid_circle_symbol" />
+
+                <TextView
+                    android:id="@+id/num_comments_textview"
+                    style="@style/TextCaptionSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1140 comments" />
+
+                <TextView
+                    style="@style/TextCaptionSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/spacing_tiny"
+                    android:layout_marginRight="@dimen/spacing_tiny"
+                    android:layout_marginStart="@dimen/spacing_tiny"
+                    android:layout_marginEnd="@dimen/spacing_tiny"
+                    android:text="@string/solid_circle_symbol" />
+
+                <TextView
+                    android:id="@+id/created_textview"
+                    style="@style/TextCaptionSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5h" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
