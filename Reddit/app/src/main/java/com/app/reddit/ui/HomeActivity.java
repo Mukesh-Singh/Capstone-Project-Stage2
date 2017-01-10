@@ -25,12 +25,15 @@ import com.app.reddit.adapter.SubredditPagerAdapter;
 import com.app.reddit.api.Callback;
 import com.app.reddit.api.RedditRestClient;
 import com.app.reddit.asyntask.LoadSubredditsAsynTask;
+import com.app.reddit.base.AppConstants;
+import com.app.reddit.events.AccessTokenExpiredEvent;
 import com.app.reddit.events.HideContentViewerEvent;
 import com.app.reddit.events.ShareContentEvent;
 import com.app.reddit.events.SubredditPreferencesUpdatedEvent;
 import com.app.reddit.events.ViewCommentsEvent;
 import com.app.reddit.events.ViewContentEvent;
 import com.app.reddit.events.ViewSubredditPostsEvent;
+import com.app.reddit.interfaces.AuthenticationListener;
 import com.app.reddit.models.Subreddit;
 import com.app.reddit.ui.fragments.CommentsFragment;
 import com.app.reddit.ui.fragments.ContentViewerFragment;
@@ -42,6 +45,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.analytics.FirebaseAnalytics;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -285,84 +290,6 @@ public class HomeActivity extends AppCompatActivity {
         fTransaction.commit();
     }
 
-//    public void onEventMainThread(OauthCallbackEvent event) {
-//        if (event.getError() != null) {
-//            Toast.makeText(this, event.getError(), Toast.LENGTH_LONG).show();
-//        } else {
-            //progressDialog.setMessage(getResources().getString(R.string.label_logging_in));
-            //progressDialog.show();
-//            progressBar.setVisibility(View.VISIBLE);
-//
-//            new RedditRestClient(this).auth(event.getCode(), event.getState(), new Callback<User>() {
-//
-//                @Override
-//                public void onSuccess(User data) {
-//                    progressBar.setVisibility(View.GONE);
-//
-//                    EventBus.getDefault().post(new AuthenticatedEvent(data));
-//                }
-//
-//                @Override
-//                public void onFailure(String message) {
-//                    progressBar.setVisibility(View.GONE);
-//
-//                    if (message != null)
-//                        Toast.makeText(HomeActivity.this, message, Toast.LENGTH_LONG).show();
-//                }
-//            });
-//        }
-//    }
-
-//    public void onEventMainThread(final AuthenticatedEvent event) {
-//        progressDialog.setMessage(getResources().getString(R.string.label_fetching_subreddits));
-//        progressDialog.show();
-//
-//        SubredditsManager.getSubreddits(new Callback<List<Subreddit>>() {
-//
-//            @Override
-//            public void onSuccess(List<Subreddit> data) {
-//                progressDialog.hide();
-//
-//                setupViewPagerAndTabs(data);
-//                updateAppBarTitlesWithPostInfo();
-//
-//                Toast.makeText(SplashActivity.this, getResources().getString(R.string.success_logged_in_base) +
-//                        event.getUser().getUsername(), Toast.LENGTH_LONG).show();
-//            }
-//
-//            @Override
-//            public void onFailure(String message) {
-//                progressDialog.hide();
-//
-//                if (message != null)
-//                    Toast.makeText(SplashActivity.this, message, Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
-
-//    public void onEventMainThread(DeauthenticatedEvent event) {
-//        progressDialog.setMessage(getResources().getString(R.string.label_fetching_subreddits));
-//        progressDialog.show();
-//
-//        SubredditsManager.getSubreddits(new Callback<List<Subreddit>>() {
-//
-//            @Override
-//            public void onSuccess(List<Subreddit> data) {
-//                progressDialog.hide();
-//
-//                setupViewPagerAndTabs(data);
-//                updateAppBarTitlesWithPostInfo();
-//            }
-//
-//            @Override
-//            public void onFailure(String message) {
-//                progressDialog.hide();
-//
-//                if (message != null)
-//                    Toast.makeText(SplashActivity.this, message, Toast.LENGTH_LONG).show();
-//            }
-//        });
-//    }
 
     public void onEventMainThread(ViewSubredditPostsEvent event) {
         FragmentTransaction fTransaction = getSupportFragmentManager().beginTransaction();
@@ -381,34 +308,63 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(sendIntent, getResources().getString(R.string.label_share_via)));
     }
 
-//    public void onEventMainThread(AccessTokenExpiredEvent event) {
-//        if (!isRefreshingAccessToken) {
-//            isRefreshingAccessToken = true;
-//
-//            progressDialog.setMessage(getResources().getString(R.string.label_refreshing_user_session));
-//            progressDialog.show();
-//
-//            AuthManager.refreshAccessToken(new Callback<Void>() {
-//
-//                @Override
-//                public void onSuccess(Void data) {
-//                    progressDialog.hide();
-//
-//                    isRefreshingAccessToken = false;
-//
-//                    Toast.makeText(SplashActivity.this, R.string.success_user_session_refreshed, Toast.LENGTH_LONG).show();
-//                }
-//
-//                @Override
-//                public void onFailure(String message) {
-//                    progressDialog.hide();
-//
-//                    if (message != null)
-//                        Toast.makeText(SplashActivity.this, message, Toast.LENGTH_LONG).show();
-//                }
-//            });
-//        }
-//    }
+    public void onEventMainThread(AccessTokenExpiredEvent event) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+        builder.setTitle(getString(R.string.auth_reqired))
+                .setMessage(getString(R.string.auth_message))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.lbl_ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+
+                        AppUtils.showAuthDialog(HomeActivity.this, new AuthenticationListener() {
+                            @Override
+                            public void onSuccess(String authCode) {
+                                getAccessToken();
+                            }
+
+                            @Override
+                            public void onFailure(String message) {
+                                AppUtils.showToastShort(getString(R.string.error));
+                                finish();
+                            }
+                        });
+                    }
+                });
+        builder.show();
+    }
+
+
+
+
+
+    private void getAccessToken() {
+        try {
+            progressBar.setVisibility(View.VISIBLE);
+            new RedditRestClient(getApplicationContext()).getToken(AppConstants.TOKEN_URL, AppConstants.GRANT_TYPE2, "", getCallBackForToken());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            AppUtils.showToastShort(getString(R.string.error));
+            finish();
+        }
+    }
+
+    private Callback getCallBackForToken() {
+        return new Callback() {
+            @Override
+            public void onSuccess(Object data) {
+                AppUtils.showToastShort(getString(R.string.access_token_refreshed));
+            }
+
+            @Override
+            public void onFailure(String message) {
+                AppUtils.showToastShort(message);
+                finish();
+            }
+        };
+    }
+
 
     private void updateAppBarTitlesWithPostInfo() {
         appBar.setTitle(AppUtils.getFirstLetterCapsString(subreddit));

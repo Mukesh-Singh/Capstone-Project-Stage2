@@ -74,7 +74,10 @@ public class RedditRestClient {
                 Log.i("response",response.toString());
                 try {
                     token = response.getString("access_token").toString();
+                    final long expiresIn = response.getLong("expires_in");
                     mPref.save(PreferenceUtil.ACCESS_TOKEN,token);
+                    mPref.save(PreferenceUtil.ACCESS_TOKEN_EXPIRE_IN,expiresIn);
+                    mPref.save(PreferenceUtil.ACCESS_TOKEN_UPDATED_AT,System.currentTimeMillis() / 1000);
                     Log.i("Access_token",token);
                     //getUsername(callback);
                     if (callback!=null)
@@ -101,8 +104,15 @@ public class RedditRestClient {
     }
 
 
+
+
+
+
     public void revokeToken()
     {
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
+
         client.setBasicAuth(AppConstants.CLIENT_ID,AppConstants.CLIENT_SECRET);
 
         String access_token = mPref.getStringValue(PreferenceUtil.ACCESS_TOKEN);
@@ -129,6 +139,8 @@ public class RedditRestClient {
     }
 	
 	public void getUsername(final Callback callback ) {
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
 
         Header[] headers = new Header[2];
         headers[0] = new BasicHeader("User-Agent", AppConstants.USER_AGENT);
@@ -162,7 +174,9 @@ public class RedditRestClient {
     }
 
     public  void getSubreddits(final Callback<List<Subreddit>> callback) {
-        mPref=new PreferenceUtil(context);
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
+
         Map<String, String> urls = new HashMap<String, String>();
         urls.put("defaults", "/subreddits/default.json?limit=100");
         urls.put("user", "/reddits/mine.json?limit=100");
@@ -227,6 +241,9 @@ public class RedditRestClient {
 
 
     public  void vote(String itemFullName, int voteDir, final Callback<Void> callback) {
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
+
         if (itemFullName == null) throw new IllegalArgumentException("'itemId' cannot be null");
 
         RequestParams params = new RequestParams();
@@ -265,6 +282,9 @@ public class RedditRestClient {
     }
 
     public  void getPosts(String subreddit, String sort, String after, final Callback<List<Post>> callback) {
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
+
         sort = sort.toLowerCase();
 
         // build posts url
@@ -339,6 +359,9 @@ public class RedditRestClient {
     }
 
     public void getComments(String subreddit, String postId, String sort, final Callback<List<Comment>> callback) {
+        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+            return;
+
         sort = sort.toLowerCase();
 
         // build comments URL
