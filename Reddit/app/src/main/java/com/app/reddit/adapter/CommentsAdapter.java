@@ -32,24 +32,25 @@ import de.greenrobot.event.EventBus;
  * Created by mukesh on 26/12/16.
  */
 
+@SuppressWarnings("deprecation")
 public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnItemSelectedListener {
 
 
-    private Context context;
-    private PreferenceUtil mPre;
+    private final Context context;
+    private final PreferenceUtil mPre;
     private int previouslySelectedPosition;
     private int currentlySelectedPosition;
-    private int[] childCommentIndicatorColors;
-    private int upvoteColor;
-    private int downvoteColor;
-    private int primaryTextColor;
-    private int secondaryTextColor;
-    private int opHighlightColor;
-    private int accentColor;
+    private final int[] childCommentIndicatorColors;
+    private final int upvoteColor;
+    private final int downvoteColor;
+    private final int primaryTextColor;
+    private final int secondaryTextColor;
+    private final int opHighlightColor;
+    private final int accentColor;
     private int lastParentCommentPosition; // This is used to disable 'next parent comment' button when there are no parent comments left to jump to
-    private ArrayList<Comment> comments=new ArrayList<>();
-    private Post selectedPost;
-    private LinearLayoutManager linearLayoutManager;
+    private final ArrayList<Comment> comments=new ArrayList<>();
+    private final Post selectedPost;
+    private final LinearLayoutManager linearLayoutManager;
 
     public CommentsAdapter(Context context, ArrayList<Comment> commentArrayList,Post selectedPost,LinearLayoutManager layoutManager) {
         this.context=context;
@@ -73,8 +74,8 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         upvoteColor = res.getColor(R.color.reddit_upvote);
         downvoteColor = res.getColor(R.color.reddit_downvote);
-        primaryTextColor = res.getColor(R.color.primary_text_default_material_light);
-        secondaryTextColor = res.getColor(R.color.secondary_text_default_material_light);
+        primaryTextColor = res.getColor(R.color.primary_text_default);
+        secondaryTextColor = res.getColor(R.color.secondary_text_default);
         accentColor = res.getColor(R.color.colorAccent);
         opHighlightColor = res.getColor(R.color.blue_700);
 
@@ -144,19 +145,19 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private class CommentViewHolder extends RecyclerView.ViewHolder {
 
-        private PreferenceUtil mPref;
-        private View rootLayout;
-        private TextView authorTextView;
-        private TextView scoreTextView;
-        private TextView createdTextView;
-        private TextView bodyTextView;
-        private View childCommentIndicator;
-        private View buttonsContainerTop;
-        private Button nextButton;
-        private Button previousButton;
-        private View buttonsContainerBottom;
-        private Button upvoteButton;
-        private Button downvoteButton;
+        private final PreferenceUtil mPref;
+        private final View rootLayout;
+        private final TextView authorTextView;
+        private final TextView scoreTextView;
+        private final TextView createdTextView;
+        private final TextView bodyTextView;
+        private final View childCommentIndicator;
+        private final View buttonsContainerTop;
+        private final Button nextButton;
+        private final Button previousButton;
+        private final View buttonsContainerBottom;
+        private final Button upvoteButton;
+        private final Button downvoteButton;
 
         public CommentViewHolder(View itemView, PreferenceUtil pref) {
             super(itemView);

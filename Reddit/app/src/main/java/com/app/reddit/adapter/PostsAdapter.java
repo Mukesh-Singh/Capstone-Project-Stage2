@@ -39,9 +39,10 @@ import de.greenrobot.event.EventBus;
  * Created by mukesh on 19/12/16.
  */
 
+@SuppressWarnings("DefaultFileTemplate")
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHolder> implements OnItemSelectedListener {
-    private PreferenceUtil mPre;
-    private Context mContext;
+    private final PreferenceUtil mPre;
+    private final Context mContext;
     private ArrayList<Post> posts = new ArrayList<>();
 
     public PostsAdapter(Context context, ArrayList<Post> list) {
@@ -75,7 +76,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     }
 
     public void setPosts(List<Post> posts) {
-        this.posts = new ArrayList<Post>(posts);
+        this.posts = new ArrayList<>(posts);
         this.notifyDataSetChanged();
     }
 
@@ -90,28 +91,31 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     }
 
 
+    @SuppressWarnings("deprecation")
     public static class PostViewHolder extends RecyclerView.ViewHolder {
 
 
-        private PreferenceUtil mPref;
-        private Context context;
-        private OnItemSelectedListener onItemSelectedListener;
-        private int upvoteColor;
-        private int downvoteColor;
-        private int primaryTextColor;
-        private View rootLayout;
-        private TextView scoreTextView;
-        private TextView titleTextView;
-        private TextView subredditTextView;
-        private TextView numCommentsTextView;
-        private TextView createdTextView;
-        private ImageView thumbnailImageView;
-        private Button commentsButton;
-        private ImageView upvoteButton;
-        private ImageView downvoteButton;
-        private Button moreOptionsButton;
+        private final PreferenceUtil mPref;
+        private final Context context;
+        private final OnItemSelectedListener onItemSelectedListener;
+        private final int upvoteColor;
+        private final int downvoteColor;
+        private final int primaryTextColor;
+        private final View rootLayout;
+        private final TextView scoreTextView;
+        private final TextView titleTextView;
+        private final TextView subredditTextView;
+        private final TextView numCommentsTextView;
+        private final TextView createdTextView;
+        private final ImageView thumbnailImageView;
+        private final Button commentsButton;
+        private final ImageView upvoteButton;
+        private final ImageView downvoteButton;
+        private final Button moreOptionsButton;
 
-        private Drawable upvoteDraw, downvoteDraw, defdrawable;
+        private final Drawable upvoteDraw;
+        private final Drawable downvoteDraw;
+        private final Drawable defdrawable;
 
 
         public PostViewHolder(Context context, View itemView, OnItemSelectedListener onItemSelectedListener, boolean shouldShowSelftext, PreferenceUtil pref) {
@@ -212,7 +216,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                                 EventBus.getDefault().post(new ViewSubredditPostsEvent(post.getSubreddit(),
                                                         context.getResources().getString(R.string.action_sort_hot)));
                                             } else if (i == 1) { // Share link
-                                                EventBus.getDefault().post(new ShareContentEvent(post.getUrl(), "text/plain"));
+                                                EventBus.getDefault().post(new ShareContentEvent(post.getUrl()));
                                             } else if (i == 2) { // Copy link
                                                 ClipboardManager clipboard =
                                                         (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);

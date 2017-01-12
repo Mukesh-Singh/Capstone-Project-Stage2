@@ -31,14 +31,12 @@ public class PostsFragment extends Fragment {
     private static final String POSTS_BUNDLE_KEY = "posts_key";
     private static final String AFTER_BUNDLE_KEY = "after_key";
     private Toolbar toolbar;
-    private RecyclerView postsRecyclerView;
     private LinearLayoutManager linearLayoutManager;
     private SwipeRefreshLayout swipeRefreshLayout;
     private PostsAdapter postsAdapter;
     private String subreddit;
     private String sort;
     private String after;
-    private ArrayList<Post> posts;
     private boolean canLoadMorePosts = true;
 
     public static PostsFragment newInstance(String subreddit, String sort, boolean shouldUseToolbar) {
@@ -63,7 +61,7 @@ public class PostsFragment extends Fragment {
          */
 
         toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        postsRecyclerView = (RecyclerView) view.findViewById(R.id.posts_recyclerview);
+        RecyclerView postsRecyclerView = (RecyclerView) view.findViewById(R.id.posts_recyclerview);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
 
         /**
@@ -74,10 +72,11 @@ public class PostsFragment extends Fragment {
         subreddit = bundle.getString(SUBREDDIT_BUNDLE_KEY);
         final boolean shouldUseToolbar = bundle.getBoolean(SHOULD_USE_TOOLBAR_BUNDLE_KEY);
 
+        ArrayList<Post> posts;
         if (savedInstanceState == null) {
             sort = bundle.getString(SORT_BUNDLE_KEY);
             after = null;
-            posts = new ArrayList<Post>();
+            posts = new ArrayList<>();
         } else {
             sort = savedInstanceState.getString(SORT_BUNDLE_KEY);
             after = savedInstanceState.getString(AFTER_BUNDLE_KEY);
@@ -91,7 +90,7 @@ public class PostsFragment extends Fragment {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         postsRecyclerView.setLayoutManager(linearLayoutManager);
 //        postsRecyclerView.getItemAnimator().setSupportsChangeAnimations(false);
-        postsAdapter = new PostsAdapter(getActivity(),posts);
+        postsAdapter = new PostsAdapter(getActivity(), posts);
         postsRecyclerView.setAdapter(postsAdapter);
         // enable endless scrolling of posts
         postsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {

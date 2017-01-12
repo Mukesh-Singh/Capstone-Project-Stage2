@@ -2,8 +2,8 @@ package com.app.reddit.events;
 
 public class ViewSubredditPostsEvent {
 
-    private String subreddit;
-    private String sort;
+    private final String subreddit;
+    private final String sort;
 
     public ViewSubredditPostsEvent(String subreddit, String sort) {
         this.subreddit = subreddit;

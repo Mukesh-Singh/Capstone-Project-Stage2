@@ -1,6 +1,5 @@
 package com.app.reddit.ui.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,11 +31,9 @@ import de.greenrobot.event.EventBus;
 
 public class ManageSubredditsFragment extends Fragment {
 
-    private Toolbar toolbar;
     private ProgressBar progressBar;
     private RecyclerView subredditsRecyclerView;
     private SubredditsAdapter subredditsAdapter;
-    private Activity mActivity;
     private PreferenceUtil mPre;
 
     @Nullable
@@ -48,7 +45,7 @@ public class ManageSubredditsFragment extends Fragment {
          * Find views
          */
 
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         progressBar = (ProgressBar) view.findViewById(R.id.progress_circular);
         subredditsRecyclerView = (RecyclerView) view.findViewById(R.id.subreddits_recyclerview);
 
@@ -137,8 +134,8 @@ public class ManageSubredditsFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
-        if (context instanceof Activity)
-            mActivity=(Activity)context;
+//        if (context instanceof Activity)
+//            mActivity=(Activity)context;
 
         super.onAttach(context);
 
@@ -146,12 +143,12 @@ public class ManageSubredditsFragment extends Fragment {
 
     private class SubredditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private List<Subreddit> selectedSubreddits;
-        private List<Subreddit> unselectedSubreddits;
+        private final List<Subreddit> selectedSubreddits;
+        private final List<Subreddit> unselectedSubreddits;
 
         public SubredditsAdapter(List<Subreddit> subreddits) {
-            selectedSubreddits = new ArrayList<Subreddit>();
-            unselectedSubreddits = new ArrayList<Subreddit>();
+            selectedSubreddits = new ArrayList<>();
+            unselectedSubreddits = new ArrayList<>();
 
             for (Subreddit subreddit : subreddits) {
                 if (subreddit.isSelected()) {
@@ -192,7 +189,7 @@ public class ManageSubredditsFragment extends Fragment {
         }
 
         public List<Subreddit> getSubreddits() {
-            ArrayList<Subreddit> subreddits = new ArrayList<Subreddit>(selectedSubreddits);
+            ArrayList<Subreddit> subreddits = new ArrayList<>(selectedSubreddits);
             subreddits.addAll(unselectedSubreddits);
 
             return subreddits;
@@ -249,8 +246,8 @@ public class ManageSubredditsFragment extends Fragment {
 
         public class SubredditViewHolder extends RecyclerView.ViewHolder {
 
-            private TextView subredditNameTextView;
-            private CheckBox favouriteCheckbox;
+            private final TextView subredditNameTextView;
+            private final CheckBox favouriteCheckbox;
 
             public SubredditViewHolder(View itemView) {
                 super(itemView);

@@ -13,11 +13,12 @@ import java.util.List;
  * Created by mukesh on 19/12/16.
  */
 
+@SuppressWarnings("DefaultFileTemplate")
 public class SubredditPagerAdapter extends FragmentStatePagerAdapter {
 
-    private List<Subreddit> subreddits;
+    private final List<Subreddit> subreddits;
     private FragmentManager fragmentManager;
-    private String sort;
+    private final String sort;
 
     public SubredditPagerAdapter(FragmentManager fragmentManager,List<Subreddit> subreddits,String sort) {
         super(fragmentManager);

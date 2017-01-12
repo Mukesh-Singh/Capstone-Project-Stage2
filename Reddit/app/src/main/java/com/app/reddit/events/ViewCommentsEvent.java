@@ -5,7 +5,7 @@ import com.app.reddit.models.Post;
 
 public class ViewCommentsEvent {
 
-    private Post selectedPost;
+    private final Post selectedPost;
 
     public ViewCommentsEvent(Post selectedPost) {
         this.selectedPost = selectedPost;

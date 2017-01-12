@@ -26,7 +26,7 @@ import de.greenrobot.event.EventBus;
 public class SplashActivity extends AppCompatActivity {
 
     private Button auth;
-    private String DEVICE_ID = UUID.randomUUID().toString();
+    private final String DEVICE_ID = UUID.randomUUID().toString();
     private ProgressBar progressBar;
 
     @Override

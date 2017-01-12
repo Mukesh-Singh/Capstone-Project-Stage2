@@ -14,29 +14,31 @@ import java.util.concurrent.TimeUnit;
 public class Helpers {
     private static final String  SHARED_PREF_NAME="reditt_share_pref";
 
-    public static String stringifyParams(Map<String, String> params) {
-        int pos = 0;
-
-        String paramsString = "";
-
-        for (String key : params.keySet()) {
-            if (pos == 0) {
-                paramsString  += key + "=" + params.get(key);
-            } else {
-                paramsString  += "&" + key + "=" + params.get(key);
-            }
-
-            pos++;
-        }
-
-        return paramsString;
-    }
+// --Commented out by Inspection START (11/1/17 6:51 PM):
+//    public static String stringifyParams(Map<String, String> params) {
+//        int pos = 0;
+//
+//        String paramsString = "";
+//
+//        for (String key : params.keySet()) {
+//            if (pos == 0) {
+//                paramsString  += key + "=" + params.get(key);
+//            } else {
+//                paramsString  += "&" + key + "=" + params.get(key);
+//            }
+//
+//            pos++;
+//        }
+//
+//        return paramsString;
+//    }
+// --Commented out by Inspection STOP (11/1/17 6:51 PM)
 
     public static Map<String, String> parseUrlQueryParams(String url) {
         url = url.substring(url.indexOf("?") + 1, url.length());
         String[] split = url.split("&");
 
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         for (String item : split) {
             String[] split2 = item.split("=");
             params.put(split2[0], split2[1]);

@@ -93,7 +93,7 @@ public class Post implements Parcelable {
     }
 
     public void setThumbnail(String thumbnail) {
-        List<String> disallowedTuhmbnails = new ArrayList<String>();
+        List<String> disallowedTuhmbnails = new ArrayList<>();
         disallowedTuhmbnails.add("");
         disallowedTuhmbnails.add("default");
         disallowedTuhmbnails.add("self");

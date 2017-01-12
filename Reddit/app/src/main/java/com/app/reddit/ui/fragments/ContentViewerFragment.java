@@ -12,12 +12,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.app.reddit.R;
-import com.app.reddit.base.AppConstants;
 import com.app.reddit.events.HideContentViewerEvent;
 import com.app.reddit.utils.OnBackPressedListener;
 
 import de.greenrobot.event.EventBus;
 
+@SuppressWarnings("deprecation")
 public class ContentViewerFragment extends Fragment implements OnBackPressedListener {
 
     public static final String TAG = ContentViewerFragment.class.getSimpleName();
@@ -82,7 +82,7 @@ public class ContentViewerFragment extends Fragment implements OnBackPressedList
         // enable local storage
         settings.setDomStorageEnabled(true);
         // set dark background color
-        webView.setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+        webView.setBackgroundColor(getResources().getColor(R.color.grey_850));
         // force to load url in the webview itself instead of opening default browser
         webView.setWebViewClient(new WebViewClient() {
 

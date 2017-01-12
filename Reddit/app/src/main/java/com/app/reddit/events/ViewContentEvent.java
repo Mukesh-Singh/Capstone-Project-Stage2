@@ -2,8 +2,8 @@ package com.app.reddit.events;
 
 public class ViewContentEvent {
 
-    private String contentTitle;
-    private String url;
+    private final String contentTitle;
+    private final String url;
 
     public ViewContentEvent(String contentTitle, String url) {
         this.contentTitle = contentTitle;

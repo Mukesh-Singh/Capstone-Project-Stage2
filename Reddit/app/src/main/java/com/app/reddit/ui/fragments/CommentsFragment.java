@@ -66,7 +66,7 @@ public class CommentsFragment extends Fragment {
 
         if (savedInstanceState == null) {
             sort = getResources().getString(R.string.action_sort_best);
-            comments = new ArrayList<Comment>();
+            comments = new ArrayList<>();
         } else {
             sort = savedInstanceState.getString(SORT_BUNDLE_KEY);
             comments = savedInstanceState.getParcelableArrayList(COMMENTS_BUNDLE_KEY);

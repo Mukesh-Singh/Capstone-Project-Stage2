@@ -15,15 +15,15 @@ import de.greenrobot.event.EventBus;
 
 
 public class PreferenceUtil {
-    private String TAG = PreferenceUtil.class.getSimpleName();
-    private Context mContext;
+    private final String TAG = PreferenceUtil.class.getSimpleName();
+    private final Context mContext;
     public static final String AUTH_CODE = "auth_code";
     public static final String ACCESS_TOKEN = "access_token";
     public static final String ACCESS_TOKEN_EXPIRE_IN = "access_token_expire_in";
     public static final String ACCESS_TOKEN_UPDATED_AT = "access_token_updated_at";
     public static final String USER_NAME = "user_name";
     public static final String SUBREDDITS_PREFS_KEY = "subreddits_prefs_key";
-    private SharedPreferences mSpref;
+    private final SharedPreferences mSpref;
     public static final String GLOBAL_SHARED_PREF_NAME = "your_app_global_shared_pref";
     public static final String SHARED_PREF_NAME = "reddit_shared_pref";
 
@@ -100,11 +100,11 @@ public class PreferenceUtil {
 
     public long getLongValue(String key) {
         if (mSpref.contains(key))
-            return mSpref.getLong(key, 0l);
+            return mSpref.getLong(key, 0L);
         else
             Log.e(TAG, "KEY NOT FOUND");
 
-        return 0l;
+        return 0L;
     }
 
     public int getIntValue(String key) {

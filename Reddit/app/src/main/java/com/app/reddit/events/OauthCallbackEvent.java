@@ -2,9 +2,9 @@ package com.app.reddit.events;
 
 public class OauthCallbackEvent {
 
-    private String code;
-    private String state;
-    private String error;
+    private final String code;
+    private final String state;
+    private final String error;
 
     public OauthCallbackEvent(String code, String state, String error) {
         this.code = code;

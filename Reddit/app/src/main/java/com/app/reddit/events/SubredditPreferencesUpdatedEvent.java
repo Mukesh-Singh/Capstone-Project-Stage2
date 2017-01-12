@@ -7,7 +7,7 @@ import java.util.List;
 
 public class SubredditPreferencesUpdatedEvent {
 
-    private List<Subreddit> subreddits;
+    private final List<Subreddit> subreddits;
 
     public SubredditPreferencesUpdatedEvent(List<Subreddit> subreddits) {
         this.subreddits = subreddits;

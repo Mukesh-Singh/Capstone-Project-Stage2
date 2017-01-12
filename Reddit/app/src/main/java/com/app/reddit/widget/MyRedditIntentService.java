@@ -35,6 +35,9 @@ public class MyRedditIntentService  extends IntentService {
                     null,
                     null);
 
+            if (data==null)
+                return;
+
             data.moveToFirst();
             String subr = "";
             try {

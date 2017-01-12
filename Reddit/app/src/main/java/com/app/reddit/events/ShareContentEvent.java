@@ -2,12 +2,12 @@ package com.app.reddit.events;
 
 public class ShareContentEvent {
 
-    private String content;
-    private String mimeType;
+    private final String content;
+    private final String mimeType;
 
-    public ShareContentEvent(String content, String mimeType) {
+    public ShareContentEvent(String content) {
         this.content = content;
-        this.mimeType = mimeType;
+        this.mimeType = "text/plain";
     }
 
     public String getContent() {

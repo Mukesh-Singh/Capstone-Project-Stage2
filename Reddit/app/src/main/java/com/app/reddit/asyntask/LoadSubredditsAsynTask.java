@@ -2,7 +2,6 @@ package com.app.reddit.asyntask;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -17,13 +16,13 @@ import java.util.List;
  */
 
 public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
-    private Context context;
-    private List<Subreddit> data;
-    private ProgressBar progressBar;
-    private SubredditSavedLocallyCallback callback;
+    private final Context context;
+    private final List<Subreddit> data;
+    private final ProgressBar progressBar;
+    private final SubredditSavedLocallyCallback callback;
 
     public interface SubredditSavedLocallyCallback{
-        public void onSave(boolean isSaved);
+        void onSave(boolean isSaved);
     }
 
 
@@ -57,9 +56,9 @@ public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
         }
 
 
-        Cursor resultCursor = context.getContentResolver().query(RedditProvider.CONTENT_URI, null,
-                "@", null, null);
-        resultCursor.moveToFirst();
+//        Cursor resultCursor = context.getContentResolver().query(RedditProvider.CONTENT_URI, null,
+//                "@", null, null);
+//        resultCursor.moveToFirst();
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 
@@ -12,7 +13,7 @@ public class RedditProvider extends ContentProvider {
 
     DbHelper helper;
     private SQLiteDatabase sqlDB;
-    public static String AUTHORITY = "com.app.reddit.provider";
+    public static final String AUTHORITY = "com.app.reddit.provider";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     @Override
@@ -20,15 +21,12 @@ public class RedditProvider extends ContentProvider {
         helper = new DbHelper(getContext());
         sqlDB = helper.getWritableDatabase();
 
-        if (sqlDB == null)
-            return false;
-        else
-            return true;
+        return sqlDB != null;
     }
 
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
         Cursor cursor = sqlDB.query(DbHelper.TABLE_NAME, null, null, null, null, null, null);
         Log.d("No. of rows ret", Integer.toString(cursor.getCount()));
@@ -38,25 +36,25 @@ public class RedditProvider extends ContentProvider {
 
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
 
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         long row = sqlDB.insert("my_subs", null, values);
         return uri;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         sqlDB.execSQL("delete from " + DbHelper.TABLE_NAME);
         return 0;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return 0;
     }
 }

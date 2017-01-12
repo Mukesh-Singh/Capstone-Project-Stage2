@@ -5,7 +5,7 @@ import com.app.reddit.models.User;
 
 public class AuthenticatedEvent {
 
-    private User user;
+    private final User user;
 
     public AuthenticatedEvent(User user) {
         this.user = user;

@@ -59,7 +59,6 @@ import static com.app.reddit.base.AppConstants.SUBREDDIT_BUNDLE_KEY;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private Toolbar toolbar;
     private ActionBar appBar;
     private TabLayout subredditTabs;
     private ViewPager viewPager;
@@ -86,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
          * Find views
          */
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         subredditTabs = (TabLayout) findViewById(R.id.subreddit_tabs);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
 
@@ -161,7 +160,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setupViewPagerAndTabs(final List<Subreddit> subreddits) {
         // keep selected subreddits only
-        final List<Subreddit> selectedSubreddits = new ArrayList<Subreddit>();
+        final List<Subreddit> selectedSubreddits = new ArrayList<>();
         for (Subreddit subreddit : subreddits) {
             if (subreddit.isSelected()) {
                 selectedSubreddits.add(subreddit);
@@ -205,14 +204,16 @@ public class HomeActivity extends AppCompatActivity {
         // select active tab
         for (int i = 0; i < subredditTabs.getTabCount(); i++) {
             TabLayout.Tab tab = subredditTabs.getTabAt(i);
-            if (tab.getText().toString().equals(subreddit)) {
+            if (tab != null && tab.getText().toString().equals(subreddit)) {
                 tab.select();
                 return;
             }
         }
 
         // if no active tab found, set first tab as active
-        subredditTabs.getTabAt(0).select();
+
+        if (subredditTabs.getTabAt(0)!=null)
+            subredditTabs.getTabAt(0).select();
         viewPager.setCurrentItem(0);
         onPageChangeListener.onPageSelected(0);
     }
@@ -227,11 +228,6 @@ public class HomeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     public void onEventMainThread(ViewContentEvent event) {
@@ -384,13 +380,6 @@ public class HomeActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    // called every time the menu is about to be shown
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

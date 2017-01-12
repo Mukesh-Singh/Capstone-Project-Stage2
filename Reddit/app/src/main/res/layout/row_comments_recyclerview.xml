@@ -30,7 +30,7 @@
                 android:id="@+id/buttons_container_top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
+                android:gravity="end"
                 android:orientation="horizontal"
                 android:weightSum="4">
 

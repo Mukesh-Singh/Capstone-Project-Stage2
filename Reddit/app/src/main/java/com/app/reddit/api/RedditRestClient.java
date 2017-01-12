@@ -33,17 +33,18 @@ import java.util.Map;
 /**
 
  */
+@SuppressWarnings({"deprecation"})
 public class RedditRestClient {
     private static final String TAG = RedditRestClient.class.getName();
     String token;
-    Context context;
-    private PreferenceUtil mPref;
+    final Context context;
+    private final PreferenceUtil mPref;
 
     public RedditRestClient(Context cnt){
         mPref=new PreferenceUtil(cnt);
         context = cnt;
     }
-    private static AsyncHttpClient client = new AsyncHttpClient();
+    private static final AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(getAbsoluteUrl(url), params, responseHandler);
@@ -152,7 +153,7 @@ public class RedditRestClient {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                   Log.i("response", response.toString());
                 try {
-                    String username = response.getString("name").toString();
+                    String username = response.getString("name");
                     Log.e("UserName",username);
                     mPref.save(PreferenceUtil.USER_NAME,username);
                     if (callback!=null)
@@ -177,7 +178,7 @@ public class RedditRestClient {
         if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
-        Map<String, String> urls = new HashMap<String, String>();
+        Map<String, String> urls = new HashMap<>();
         urls.put("defaults", "/subreddits/default.json?limit=100");
         urls.put("user", "/reddits/mine.json?limit=100");
 
@@ -206,7 +207,7 @@ public class RedditRestClient {
                     try {
                         JSONArray children = response.getJSONObject("data").getJSONArray("children");
 
-                        List<Subreddit> subreddits = new ArrayList<Subreddit>();
+                        List<Subreddit> subreddits = new ArrayList<>();
 
                         // add Front Page as first tab
                         subreddits.add(new Subreddit(null,
@@ -312,9 +313,9 @@ public class RedditRestClient {
                     Log.i(TAG, after);
                     JSONArray children = data.getJSONArray("children");
 
-                    List<Post> posts = new ArrayList<Post>();
+                    List<Post> posts = new ArrayList<>();
 
-                    for (int i=0; i<children.length(); i++) {;
+                    for (int i=0; i<children.length(); i++) {
                         JSONObject postData = children.getJSONObject(i).getJSONObject("data");
 
                         Post post = new Post();
@@ -375,7 +376,7 @@ public class RedditRestClient {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray jsonArray) {
-                List<Comment> comments = new ArrayList<Comment>();
+                List<Comment> comments = new ArrayList<>();
 
                 try {
                     JSONArray children = jsonArray.getJSONObject(1).getJSONObject("data").getJSONArray("children");

@@ -2,7 +2,6 @@ package com.app.reddit.utils;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebView;
@@ -18,6 +17,7 @@ import com.app.reddit.interfaces.AuthenticationListener;
  * Created by mukesh on 28/12/16.
  */
 
+@SuppressWarnings("deprecation")
 public class AppUtils {
     public static String getFirstLetterCapsString(String string){
         if (string==null || string.isEmpty())
@@ -49,12 +49,6 @@ public class AppUtils {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 view.loadUrl(url);
                 return true;
-            }
-
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-
             }
 
             @Override
