@@ -156,7 +156,7 @@ public class CommentsFragment extends Fragment {
         setRefreshIndicatorVisiblity(true);
         // only hide recycler view if post item is the only item (i.e. when comments are being loadded for the first time)
         if (commentsAdapter.getItemCount() == 1) {
-            commentsRecyclerView.setVisibility(View.INVISIBLE);
+            //commentsRecyclerView.setVisibility(View.INVISIBLE);
         }
 
         new RedditRestClient(getActivity()).getComments(selectedPost.getSubreddit(), selectedPost.getId(), sort, new Callback<List<Comment>>() {
@@ -165,7 +165,7 @@ public class CommentsFragment extends Fragment {
             public void onSuccess(List<Comment> data) {
                 if (getActivity() != null) {
                     setRefreshIndicatorVisiblity(false);
-                    commentsRecyclerView.setVisibility(View.VISIBLE);
+                    //commentsRecyclerView.setVisibility(View.VISIBLE);
 
                     if (data.size() > 0) {
                         commentsAdapter.setComments(data);

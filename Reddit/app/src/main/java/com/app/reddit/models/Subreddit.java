@@ -11,6 +11,11 @@ public class Subreddit {
         this.displayName = name;
         this.isSelected = isSelected;
     }
+    public Subreddit(String id, String name, int isSelected) {
+        this.id = id;
+        this.displayName = name;
+        setSelected(isSelected);
+    }
 
     public String getId() {
         return id;
@@ -31,6 +36,21 @@ public class Subreddit {
     public boolean isSelected() {
         return isSelected;
     }
+
+    public int isSelectedInt() {
+        if (isSelected)
+            return 1;
+        return 0;
+
+    }
+
+    public void setSelected(int isFavourite){
+        if (isFavourite==0)
+            setSelected(false);
+        else
+            setSelected(true);
+    }
+
 
     public void setSelected(boolean isFavourite) {
         this.isSelected = isFavourite;

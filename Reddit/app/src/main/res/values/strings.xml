@@ -49,5 +49,6 @@
     <string name="upvote_button_description">Upvote button</string>
     <string name="downvote_button_description">Downvote button</string>
     <string name="label_comment">Comment</string>
+    <string name="transition_comment_header">comment_header</string>
 
 </resources>

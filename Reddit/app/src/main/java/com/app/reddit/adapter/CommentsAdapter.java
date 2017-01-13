@@ -48,17 +48,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private final int opHighlightColor;
     private final int accentColor;
     private int lastParentCommentPosition; // This is used to disable 'next parent comment' button when there are no parent comments left to jump to
-    private final ArrayList<Comment> comments=new ArrayList<>();
+    private final ArrayList<Comment> comments = new ArrayList<>();
     private final Post selectedPost;
     private final LinearLayoutManager linearLayoutManager;
 
-    public CommentsAdapter(Context context, ArrayList<Comment> commentArrayList,Post selectedPost,LinearLayoutManager layoutManager) {
-        this.context=context;
+    public CommentsAdapter(Context context, ArrayList<Comment> commentArrayList, Post selectedPost, LinearLayoutManager layoutManager) {
+        this.context = context;
         comments.clear();
         comments.addAll(commentArrayList);
-        this.selectedPost=selectedPost;
-        this.linearLayoutManager=layoutManager;
-        mPre=new PreferenceUtil(context);
+        this.selectedPost = selectedPost;
+        this.linearLayoutManager = layoutManager;
+        mPre = new PreferenceUtil(context);
         previouslySelectedPosition = -1;
         currentlySelectedPosition = -1;
 
@@ -97,9 +97,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (viewType == 0) {
             return new PostsAdapter.PostViewHolder(context,
-                    inflater.inflate(R.layout.n_row_post, parent, false), this, true,mPre);
+                    inflater.inflate(R.layout.n_row_post, parent, false), this, false, mPre);
         } else {
-            return new CommentsAdapter.CommentViewHolder(inflater.inflate(R.layout.row_comments_recyclerview, parent, false),mPre);
+            return new CommentsAdapter.CommentViewHolder(inflater.inflate(R.layout.row_comments_recyclerview, parent, false), mPre);
         }
     }
 
@@ -161,7 +161,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public CommentViewHolder(View itemView, PreferenceUtil pref) {
             super(itemView);
-            mPref=pref;
+            mPref = pref;
             rootLayout = itemView.findViewById(R.id.root_layout);
             authorTextView = (TextView) itemView.findViewById(R.id.author_textview);
             scoreTextView = (TextView) itemView.findViewById(R.id.score_textview);
@@ -177,7 +177,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         public void bindItem(final Comment comment) {
-            if (context==null)
+            if (context == null)
                 return;
             authorTextView.setText(comment.getAuthor());
             scoreTextView.setText(comment.getScore() + " " +
@@ -327,7 +327,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
 
         private Callback<Void> getUpVoteCallback(final Comment comment) {
-            return new Callback<Void>(){
+            return new Callback<Void>() {
 
                 @Override
                 public void onSuccess(Void data) {
@@ -338,29 +338,29 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(context, Html.fromHtml(message),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Html.fromHtml(message), Toast.LENGTH_SHORT).show();
                     comment.setLikes(false);
-                    comment.setScore(comment.getScore()-1);
+                    comment.setScore(comment.getScore() - 1);
 
                 }
             };
         }
 
         private Callback<Void> getDownVoteCallback(final Comment comment) {
-            return new Callback<Void>(){
+            return new Callback<Void>() {
 
                 @Override
                 public void onSuccess(Void data) {
                     setColorsAccordingToVote(comment.getLikes());
                     scoreTextView.setText(comment.getScore() + " " +
-                           context.getResources().getString(R.string.label_points));
+                            context.getResources().getString(R.string.label_points));
                 }
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(context,Html.fromHtml(message),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Html.fromHtml(message), Toast.LENGTH_SHORT).show();
                     comment.setLikes(false);
-                    comment.setScore(comment.getScore()+1);
+                    comment.setScore(comment.getScore() + 1);
 
                 }
             };

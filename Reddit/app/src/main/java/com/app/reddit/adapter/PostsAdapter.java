@@ -56,7 +56,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
     @Override
     public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(mContext).inflate(R.layout.n_row_post, viewGroup, false);
-        return new PostViewHolder(mContext, itemView, this, false, mPre);
+        return new PostViewHolder(mContext, itemView, this, true, mPre);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         this.notifyDataSetChanged();
     }
 
-    public ArrayList<Post> getPosts (){
+    public ArrayList<Post> getPosts() {
         return posts;
     }
 
@@ -116,14 +116,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         private final Drawable upvoteDraw;
         private final Drawable downvoteDraw;
         private final Drawable defdrawable;
+        private boolean goToComment;
 
 
-        public PostViewHolder(Context context, View itemView, OnItemSelectedListener onItemSelectedListener, boolean shouldShowSelftext, PreferenceUtil pref) {
+        public PostViewHolder(Context context, View itemView, OnItemSelectedListener onItemSelectedListener, boolean goToComment, PreferenceUtil pref) {
             super(itemView);
 
             this.context = context;
             this.onItemSelectedListener = onItemSelectedListener;
             this.mPref = pref;
+            this.goToComment = goToComment;
             Resources res = context.getResources();
 
             upvoteColor = res.getColor(R.color.reddit_upvote);
@@ -181,7 +183,11 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
 
                         case R.id.comments_button:
-                            EventBus.getDefault().post(new ViewCommentsEvent(post));
+                            if (goToComment) {
+                                ViewCommentsEvent event = new ViewCommentsEvent(post);
+                                event.setCommentView(rootLayout);
+                                EventBus.getDefault().post(event);
+                            }
                             break;
                         case R.id.post_title_container:
                         case R.id.thumbnail_imageview:
@@ -195,7 +201,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 post.setLikes(null);
                                 post.setScore(post.getScore() - 1);
                             }
-                            new RedditRestClient(context).vote(post.getFullName(),post.getLikes(),getUpVoteCallback(post));
+                            new RedditRestClient(context).vote(post.getFullName(), post.getLikes(), getUpVoteCallback(post));
                             break;
                         case R.id.downvote_button:
                             if (post.getLikes() == 1 || post.getLikes() == 0) {
@@ -205,7 +211,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
                                 post.setLikes(null);
                                 post.setScore(post.getScore() + 1);
                             }
-                            new RedditRestClient(context).vote(post.getFullName(),post.getLikes(),getDownVoteCallback(post));
+                            new RedditRestClient(context).vote(post.getFullName(), post.getLikes(), getDownVoteCallback(post));
                             break;
                         case R.id.more_options_button:
                             AlertDialog moreOptionsDialog = new AlertDialog.Builder(context)
@@ -244,7 +250,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
         }
 
         private Callback<Void> getUpVoteCallback(final Post post) {
-            return new Callback<Void>(){
+            return new Callback<Void>() {
 
                 @Override
                 public void onSuccess(Void data) {
@@ -254,16 +260,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(context, Html.fromHtml(message),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Html.fromHtml(message), Toast.LENGTH_SHORT).show();
                     post.setLikes(false);
-                    post.setScore(post.getScore()-1);
+                    post.setScore(post.getScore() - 1);
 
                 }
             };
         }
 
         private Callback<Void> getDownVoteCallback(final Post post) {
-            return new Callback<Void>(){
+            return new Callback<Void>() {
 
                 @Override
                 public void onSuccess(Void data) {
@@ -273,9 +279,9 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
                 @Override
                 public void onFailure(String message) {
-                    Toast.makeText(context,Html.fromHtml(message),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, Html.fromHtml(message), Toast.LENGTH_SHORT).show();
                     post.setLikes(false);
-                    post.setScore(post.getScore()+1);
+                    post.setScore(post.getScore() + 1);
 
                 }
             };
@@ -287,25 +293,25 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostViewHold
 
         private void setColorsAccordingToVote(int likes) {
             if (likes == 1) {
-                setBackGround(upvoteButton,upvoteDraw);
+                setBackGround(upvoteButton, upvoteDraw);
                 scoreTextView.setTextColor(upvoteColor);
-                setBackGround(downvoteButton,defdrawable);
+                setBackGround(downvoteButton, defdrawable);
             } else if (likes == -1) {
-                setBackGround(downvoteButton,downvoteDraw);
+                setBackGround(downvoteButton, downvoteDraw);
                 scoreTextView.setTextColor(downvoteColor);
-                setBackGround(upvoteButton,defdrawable);
+                setBackGround(upvoteButton, defdrawable);
             } else {
-                setBackGround(upvoteButton,defdrawable);
+                setBackGround(upvoteButton, defdrawable);
                 scoreTextView.setTextColor(primaryTextColor);
-                setBackGround(downvoteButton,defdrawable);
+                setBackGround(downvoteButton, defdrawable);
             }
         }
 
-        private void setBackGround(ImageView imageView, Drawable drawable){
-            if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-                imageView.setBackgroundDrawable( drawable );
+        private void setBackGround(ImageView imageView, Drawable drawable) {
+            if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                imageView.setBackgroundDrawable(drawable);
             } else {
-                imageView.setBackground( drawable);
+                imageView.setBackground(drawable);
             }
         }
 

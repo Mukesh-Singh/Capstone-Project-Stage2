@@ -20,10 +20,10 @@ public class SubredditPagerAdapter extends FragmentStatePagerAdapter {
     private FragmentManager fragmentManager;
     private final String sort;
 
-    public SubredditPagerAdapter(FragmentManager fragmentManager,List<Subreddit> subreddits,String sort) {
+    public SubredditPagerAdapter(FragmentManager fragmentManager, List<Subreddit> subreddits, String sort) {
         super(fragmentManager);
         this.subreddits = subreddits;
-        this.sort=sort;
+        this.sort = sort;
     }
 
     @Override

@@ -6,10 +6,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.app.reddit.events.AccessTokenExpiredEvent;
-import com.app.reddit.models.Subreddit;
-import com.google.gson.Gson;
-
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
@@ -22,7 +18,7 @@ public class PreferenceUtil {
     public static final String ACCESS_TOKEN_EXPIRE_IN = "access_token_expire_in";
     public static final String ACCESS_TOKEN_UPDATED_AT = "access_token_updated_at";
     public static final String USER_NAME = "user_name";
-    public static final String SUBREDDITS_PREFS_KEY = "subreddits_prefs_key";
+    //public static final String SUBREDDITS_PREFS_KEY = "subreddits_prefs_key";
     private final SharedPreferences mSpref;
     public static final String GLOBAL_SHARED_PREF_NAME = "your_app_global_shared_pref";
     public static final String SHARED_PREF_NAME = "reddit_shared_pref";
@@ -136,27 +132,26 @@ public class PreferenceUtil {
         return mSpref;
     }
 
-    public boolean isUserAuthenticated(){
+    public boolean isUserAuthenticated() {
         return !getStringValue(AUTH_CODE).isEmpty();
     }
 
-    public  void saveSubreddits(List<Subreddit> subreddits) {
-        Gson gson = new Gson();
-       save(PreferenceUtil.SUBREDDITS_PREFS_KEY,gson.toJson(subreddits));
+//    public  void saveSubreddits(List<Subreddit> subreddits) {
+//        Gson gson = new Gson();
+//       save(PreferenceUtil.SUBREDDITS_PREFS_KEY,gson.toJson(subreddits));
+//
+//    }
 
-    }
-
-    public String getTokenIfNotExpired(){
+    public String getTokenIfNotExpired() {
         if (!(((System.currentTimeMillis() / 1000) - getLongValue(ACCESS_TOKEN_UPDATED_AT)) >= getLongValue(ACCESS_TOKEN_EXPIRE_IN)))
             return getStringValue(ACCESS_TOKEN);
-        else{
+        else {
             EventBus.getDefault().post(new AccessTokenExpiredEvent());
             return null;
         }
 
 
     }
-
 
 
 }

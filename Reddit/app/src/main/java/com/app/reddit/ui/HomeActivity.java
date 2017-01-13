@@ -3,15 +3,21 @@ package com.app.reddit.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.transition.Fade;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,11 +41,14 @@ import com.app.reddit.events.ViewContentEvent;
 import com.app.reddit.events.ViewSubredditPostsEvent;
 import com.app.reddit.interfaces.AuthenticationListener;
 import com.app.reddit.models.Subreddit;
+import com.app.reddit.provider.DbHelper;
+import com.app.reddit.provider.RedditProvider;
 import com.app.reddit.ui.fragments.CommentsFragment;
 import com.app.reddit.ui.fragments.ContentViewerFragment;
 import com.app.reddit.ui.fragments.ManageSubredditsFragment;
 import com.app.reddit.ui.fragments.PostsFragment;
 import com.app.reddit.utils.AppUtils;
+import com.app.reddit.utils.CommentsTransition;
 import com.app.reddit.utils.PreferenceUtil;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -57,7 +66,7 @@ import static com.app.reddit.base.AppConstants.ADMOB_APP_ID;
 import static com.app.reddit.base.AppConstants.SORT_BUNDLE_KEY;
 import static com.app.reddit.base.AppConstants.SUBREDDIT_BUNDLE_KEY;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private ActionBar appBar;
     private TabLayout subredditTabs;
@@ -73,7 +82,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MobileAds.initialize(getApplicationContext(),ADMOB_APP_ID);
+        MobileAds.initialize(getApplicationContext(), ADMOB_APP_ID);
         AdView mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -113,24 +122,48 @@ public class HomeActivity extends AppCompatActivity {
          * Setup progress dialog which will be displayed while network operations are being performed
          */
 
-        progressBar= (ProgressBar) findViewById(R.id.main_progressbar);
+        progressBar = (ProgressBar) findViewById(R.id.main_progressbar);
         progressBar.setVisibility(View.VISIBLE);
-        PreferenceUtil mPre=new PreferenceUtil(this);
-        Log.e("username",mPre.getStringValue(PreferenceUtil.USER_NAME));
-        loadSubreddits();
+        PreferenceUtil mPre = new PreferenceUtil(this);
+        Log.e("username", mPre.getStringValue(PreferenceUtil.USER_NAME));
+        if (getIntent().getBooleanExtra(SplashActivity.UPDATE_SUBREDDITS, true)) {
+            loadSubreddits();
+        } else {
+            getSupportLoaderManager().initLoader(0, null, this);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
 
     }
 
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = DbHelper.KEY_FIELD_SELECTED + "=?";
+        String[] selectionArgs = {"1"};
 
-    private void loadSubreddits(){
+        return new CursorLoader(this, RedditProvider.CONTENT_URI, null, selection, selectionArgs, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        progressBar.setVisibility(View.GONE);
+        setupViewPagerAndTabs(AppUtils.getSubredditsList(data));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        //nothing to do
+    }
+
+
+    private void loadSubreddits() {
         new RedditRestClient(this).getSubreddits(new Callback<List<Subreddit>>() {
 
             @Override
             public void onSuccess(List<Subreddit> data) {
                 progressBar.setVisibility(View.GONE);
                 saveRedditListLocally(data);
-
 
 
             }
@@ -144,8 +177,8 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void saveRedditListLocally(final List<Subreddit> data){
-        new LoadSubredditsAsynTask(this,progressBar, data, new LoadSubredditsAsynTask.SubredditSavedLocallyCallback() {
+    private void saveRedditListLocally(final List<Subreddit> data) {
+        new LoadSubredditsAsynTask(this, progressBar, data, new LoadSubredditsAsynTask.SubredditSavedLocallyCallback() {
             @Override
             public void onSave(boolean isSaved) {
                 if (isSaved)
@@ -154,8 +187,6 @@ public class HomeActivity extends AppCompatActivity {
         }).execute();
 
     }
-
-
 
 
     private void setupViewPagerAndTabs(final List<Subreddit> subreddits) {
@@ -177,7 +208,7 @@ public class HomeActivity extends AppCompatActivity {
         viewPager.clearOnPageChangeListeners();
 
         // setup view pager
-        subredditPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager(),selectedSubreddits,sort);
+        subredditPagerAdapter = new SubredditPagerAdapter(getSupportFragmentManager(), selectedSubreddits, sort);
         viewPager.setAdapter(subredditPagerAdapter);
         ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
 
@@ -212,7 +243,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // if no active tab found, set first tab as active
 
-        if (subredditTabs.getTabAt(0)!=null)
+        if (subredditTabs.getTabAt(0) != null)
             subredditTabs.getTabAt(0).select();
         viewPager.setCurrentItem(0);
         onPageChangeListener.onPageSelected(0);
@@ -257,7 +288,7 @@ public class HomeActivity extends AppCompatActivity {
                     .show(contentViewerFragment)
                     .commit();
             contentViewerFragment.loadContent(event.getContentTitle(), event.getUrl());
-            if (contentViewerFragment.getView()!=null)
+            if (contentViewerFragment.getView() != null)
                 contentViewerFragment.getView().bringToFront();
         }
     }
@@ -279,8 +310,22 @@ public class HomeActivity extends AppCompatActivity {
     public void onEventMainThread(ViewCommentsEvent event) {
         CommentsFragment commentsFragment =
                 CommentsFragment.newInstance(event.getSelectedPost());
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            commentsFragment.setSharedElementEnterTransition(new CommentsTransition());
+            commentsFragment.setEnterTransition(new Fade());
+            commentsFragment.setExitTransition(new Fade());
+            commentsFragment.setSharedElementReturnTransition(new CommentsTransition());
+        }
+
+
         FragmentTransaction fTransaction = getSupportFragmentManager().beginTransaction();
-        fTransaction.setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            fTransaction.addSharedElement(event.getCommentView(), event.getCommentView().getTransitionName());
+        } else {
+            fTransaction.setCustomAnimations(R.anim.fade_in, 0, 0, R.anim.fade_out);
+        }
         fTransaction.add(android.R.id.content, commentsFragment);
         fTransaction.addToBackStack(null);
         fTransaction.commit();
@@ -330,9 +375,6 @@ public class HomeActivity extends AppCompatActivity {
                 });
         builder.show();
     }
-
-
-
 
 
     private void getAccessToken() {
@@ -394,7 +436,7 @@ public class HomeActivity extends AppCompatActivity {
                 id == R.id.action_sort_controversial || id == R.id.action_sort_top) {
             sort = item.getTitle().toString();
             updateAppBarTitlesWithPostInfo();
-            if (getCurrentFragment()!=null)
+            if (getCurrentFragment() != null)
                 getCurrentFragment().updateSort(sort);
             return true;
         } else if (id == R.id.action_go_to_subreddit) {
@@ -448,8 +490,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public PostsFragment getCurrentFragment() {
-        if (subredditPagerAdapter==null)
+        if (subredditPagerAdapter == null)
             return null;
         return (PostsFragment) subredditPagerAdapter.instantiateItem(viewPager, viewPager.getCurrentItem());
     }
+
+
 }

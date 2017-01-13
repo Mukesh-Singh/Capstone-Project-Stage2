@@ -12,27 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Helpers {
-    private static final String  SHARED_PREF_NAME="reditt_share_pref";
-
-// --Commented out by Inspection START (11/1/17 6:51 PM):
-//    public static String stringifyParams(Map<String, String> params) {
-//        int pos = 0;
-//
-//        String paramsString = "";
-//
-//        for (String key : params.keySet()) {
-//            if (pos == 0) {
-//                paramsString  += key + "=" + params.get(key);
-//            } else {
-//                paramsString  += "&" + key + "=" + params.get(key);
-//            }
-//
-//            pos++;
-//        }
-//
-//        return paramsString;
-//    }
-// --Commented out by Inspection STOP (11/1/17 6:51 PM)
+    private static final String SHARED_PREF_NAME = "reditt_share_pref";
 
     public static Map<String, String> parseUrlQueryParams(String url) {
         url = url.substring(url.indexOf("?") + 1, url.length());
@@ -79,17 +59,13 @@ public class Helpers {
 
         if (diffWeeks > 0) {
             return diffWeeks + "w";
-        }
-        else if (diffDays > 0) {
+        } else if (diffDays > 0) {
             return diffDays + "d";
-        }
-        else if (diffHours > 0) {
+        } else if (diffHours > 0) {
             return diffHours + "h";
-        }
-        else if (diffMinutes > 0) {
+        } else if (diffMinutes > 0) {
             return diffMinutes + "m";
-        }
-        else {
+        } else {
             return diffSeconds + "s";
         }
     }
@@ -106,8 +82,8 @@ public class Helpers {
         return text;
     }
 
-    private static SharedPreferences getSharedPref(Context context){
-       return context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+    private static SharedPreferences getSharedPref(Context context) {
+        return context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
     }
 
 }

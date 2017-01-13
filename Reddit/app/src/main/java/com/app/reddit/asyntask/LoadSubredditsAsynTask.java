@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.app.reddit.models.Subreddit;
+import com.app.reddit.provider.DbHelper;
 import com.app.reddit.provider.RedditProvider;
 
 import java.util.List;
@@ -15,22 +16,22 @@ import java.util.List;
  * Created by mukesh on 19/12/16.
  */
 
-public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
+public class LoadSubredditsAsynTask extends AsyncTask<Void, Void, Boolean> {
     private final Context context;
     private final List<Subreddit> data;
     private final ProgressBar progressBar;
     private final SubredditSavedLocallyCallback callback;
 
-    public interface SubredditSavedLocallyCallback{
+    public interface SubredditSavedLocallyCallback {
         void onSave(boolean isSaved);
     }
 
 
-    public LoadSubredditsAsynTask(Context context,ProgressBar progressBar,List<Subreddit> data,SubredditSavedLocallyCallback callback){
-        this.context=context;
-        this.progressBar=progressBar;
-        this.data=data;
-        this.callback=callback;
+    public LoadSubredditsAsynTask(Context context, ProgressBar progressBar, List<Subreddit> data, SubredditSavedLocallyCallback callback) {
+        this.context = context;
+        this.progressBar = progressBar;
+        this.data = data;
+        this.callback = callback;
     }
 
     @Override
@@ -38,21 +39,22 @@ public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
         try {
             if (progressBar != null)
                 progressBar.setVisibility(View.VISIBLE);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         super.onPreExecute();
     }
 
-    private void loadSubreddits(){
+    private void loadSubreddits() {
         context.getContentResolver().delete(RedditProvider.CONTENT_URI, null, null);
-        ContentValues cv = new ContentValues();
         for (Subreddit subr : data) {
-            if (subr.isSelected()) {
-                cv.put("subreddit_name", subr.getName());
-                context.getContentResolver().insert(RedditProvider.CONTENT_URI, cv);
-            }
+            //if (subr.isSelected()) {
+            ContentValues cv = new ContentValues();
+            cv.put(DbHelper.KEY_SUBREDDIT_ID, subr.getId());
+            cv.put(DbHelper.KEY_SUBREDDIT_NAME, subr.getName());
+            cv.put(DbHelper.KEY_FIELD_SELECTED, subr.isSelectedInt());
+            context.getContentResolver().insert(RedditProvider.CONTENT_URI, cv);
+            //}
         }
 
 
@@ -63,11 +65,10 @@ public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        try{
+        try {
             loadSubreddits();
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -80,12 +81,11 @@ public class LoadSubredditsAsynTask extends AsyncTask<Void,Void, Boolean >{
         try {
             if (progressBar != null)
                 progressBar.setVisibility(View.GONE);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if (callback!=null)
+        if (callback != null)
             callback.onSave(subreddits);
 
     }

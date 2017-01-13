@@ -11,7 +11,6 @@ import com.app.reddit.models.Comment;
 import com.app.reddit.models.Post;
 import com.app.reddit.models.Subreddit;
 import com.app.reddit.utils.PreferenceUtil;
-import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -24,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +38,11 @@ public class RedditRestClient {
     final Context context;
     private final PreferenceUtil mPref;
 
-    public RedditRestClient(Context cnt){
-        mPref=new PreferenceUtil(cnt);
+    public RedditRestClient(Context cnt) {
+        mPref = new PreferenceUtil(cnt);
         context = cnt;
     }
+
     private static final AsyncHttpClient client = new AsyncHttpClient();
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
@@ -60,32 +59,31 @@ public class RedditRestClient {
     }
 
     public void getToken(String relativeUrl, String grant_type, String device_id, final Callback callback) throws JSONException {
-        client.setBasicAuth(AppConstants.CLIENT_ID,AppConstants.CLIENT_SECRET);
-        String code =mPref.getStringValue(PreferenceUtil.AUTH_CODE);
+        client.setBasicAuth(AppConstants.CLIENT_ID, AppConstants.CLIENT_SECRET);
+        String code = mPref.getStringValue(PreferenceUtil.AUTH_CODE);
 
         RequestParams requestParams = new RequestParams();
-        requestParams.put("code",code);
-        requestParams.put("grant_type",grant_type);
+        requestParams.put("code", code);
+        requestParams.put("grant_type", grant_type);
         requestParams.put("redirect_uri", AppConstants.REDIRECT_URI);
 
         post(relativeUrl, requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // If the response is JSONObject instead of expected JSONArray
-                Log.i("response",response.toString());
+                Log.i("response", response.toString());
                 try {
                     token = response.getString("access_token").toString();
                     final long expiresIn = response.getLong("expires_in");
-                    mPref.save(PreferenceUtil.ACCESS_TOKEN,token);
-                    mPref.save(PreferenceUtil.ACCESS_TOKEN_EXPIRE_IN,expiresIn);
-                    mPref.save(PreferenceUtil.ACCESS_TOKEN_UPDATED_AT,System.currentTimeMillis() / 1000);
-                    Log.i("Access_token",token);
+                    mPref.save(PreferenceUtil.ACCESS_TOKEN, token);
+                    mPref.save(PreferenceUtil.ACCESS_TOKEN_EXPIRE_IN, expiresIn);
+                    mPref.save(PreferenceUtil.ACCESS_TOKEN_UPDATED_AT, System.currentTimeMillis() / 1000);
+                    Log.i("Access_token", token);
                     //getUsername(callback);
-                    if (callback!=null)
+                    if (callback != null)
                         callback.onSuccess(response);
-                }catch (JSONException j)
-                {
-                    if (callback!=null)
+                } catch (JSONException j) {
+                    if (callback != null)
                         callback.onFailure(context.getString(R.string.error));
                     j.printStackTrace();
                 }
@@ -96,7 +94,7 @@ public class RedditRestClient {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 //super.onFailure(statusCode, headers, throwable, errorResponse);
                 Log.i("statusCode", "" + statusCode);
-                if (callback!=null)
+                if (callback != null)
                     callback.onFailure(throwable.getMessage());
 
             }
@@ -105,29 +103,24 @@ public class RedditRestClient {
     }
 
 
-
-
-
-
-    public void revokeToken()
-    {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+    public void revokeToken() {
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
-        client.setBasicAuth(AppConstants.CLIENT_ID,AppConstants.CLIENT_SECRET);
+        client.setBasicAuth(AppConstants.CLIENT_ID, AppConstants.CLIENT_SECRET);
 
         String access_token = mPref.getStringValue(PreferenceUtil.ACCESS_TOKEN);
 
         RequestParams requestParams = new RequestParams();
-        requestParams.put("token",access_token);
-        requestParams.put("token_type_hint","access_token");
+        requestParams.put("token", access_token);
+        requestParams.put("token_type_hint", "access_token");
 
-        post("revoke_token",requestParams,new JsonHttpResponseHandler(){
+        post("revoke_token", requestParams, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 // If the response is JSONObject instead of expected JSONArray
                 Log.i("response", response.toString());
-                mPref.save(PreferenceUtil.ACCESS_TOKEN,"");
+                mPref.save(PreferenceUtil.ACCESS_TOKEN, "");
 
             }
 
@@ -138,9 +131,9 @@ public class RedditRestClient {
             }
         });
     }
-	
-	public void getUsername(final Callback callback ) {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+
+    public void getUsername(final Callback callback) {
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
         Header[] headers = new Header[2];
@@ -148,15 +141,15 @@ public class RedditRestClient {
         headers[1] = new BasicHeader("Authorization", "bearer " + mPref.getStringValue(PreferenceUtil.ACCESS_TOKEN));
 
         client.get(context, "https://oauth.reddit.com/api/v1/me.json", headers, null, new JsonHttpResponseHandler() {
-            
+
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                  Log.i("response", response.toString());
+                Log.i("response", response.toString());
                 try {
                     String username = response.getString("name");
-                    Log.e("UserName",username);
-                    mPref.save(PreferenceUtil.USER_NAME,username);
-                    if (callback!=null)
+                    Log.e("UserName", username);
+                    mPref.save(PreferenceUtil.USER_NAME, username);
+                    if (callback != null)
                         callback.onSuccess(response);
                 } catch (JSONException j) {
                     j.printStackTrace();
@@ -168,81 +161,72 @@ public class RedditRestClient {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.i("response", errorResponse.toString());
                 Log.i("statusCode", "" + statusCode);
-                if (callback!=null)
+                if (callback != null)
                     callback.onFailure(throwable.getMessage());
             }
         });
     }
 
-    public  void getSubreddits(final Callback<List<Subreddit>> callback) {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+    public void getSubreddits(final Callback<List<Subreddit>> callback) {
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
         Map<String, String> urls = new HashMap<>();
         urls.put("defaults", "/subreddits/default.json?limit=100");
         urls.put("user", "/reddits/mine.json?limit=100");
-
-        // check if requested subreddits are already cached or not
-        // if yes, simply return them, else send request to server and then cache them
-        Gson gson = new Gson();
-        String subredditsString = mPref.getStringValue(PreferenceUtil.SUBREDDITS_PREFS_KEY);
-        if (subredditsString != null && !subredditsString.isEmpty()) {
-            List<Subreddit> subreddits = Arrays.asList(gson.fromJson(subredditsString, Subreddit[].class));
-            if (callback != null) callback.onSuccess(subreddits);
+        String subredditsUrl;
+        if (mPref.isUserAuthenticated()) {
+            subredditsUrl = AppConstants.AUTH_API_BASE + urls.get("user");
         } else {
-            String subredditsUrl;
-            if (mPref.isUserAuthenticated()) {
-                subredditsUrl = AppConstants.AUTH_API_BASE + urls.get("user");
-            } else {
-                subredditsUrl = AppConstants.UNAUTH_API_BASE + urls.get("defaults");
+            subredditsUrl = AppConstants.UNAUTH_API_BASE + urls.get("defaults");
+        }
+
+        Header[] headers = new Header[2];
+        headers[0] = new BasicHeader("User-Agent", AppConstants.USER_AGENT);
+        headers[1] = new BasicHeader("Authorization", "bearer " + mPref.getStringValue(PreferenceUtil.ACCESS_TOKEN));
+        client.get(context, subredditsUrl, headers, null, new JsonHttpResponseHandler() {
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONArray children = response.getJSONObject("data").getJSONArray("children");
+
+                    List<Subreddit> subreddits = new ArrayList<>();
+
+                    // add Front Page as first tab
+                    subreddits.add(new Subreddit(null,
+                            App.getAppInstance().getAppContext().getResources().getString(R.string.front_page), true));
+
+                    for (int i = 0; i < children.length(); i++) {
+                        JSONObject subredditData = children.getJSONObject(i).getJSONObject("data");
+
+                        Subreddit subreddit = new Subreddit(subredditData.getString("id"),
+                                subredditData.getString("display_name"), true);
+
+                        subreddits.add(subreddit);
+
+                        //mPref.saveSubreddits(subreddits);
+                    }
+
+                    if (callback != null) callback.onSuccess(subreddits);
+                } catch (JSONException e) {
+                    if (callback != null)
+                        callback.onFailure(App.getAppInstance().getAppContext().getResources().getString(R.string.error_parsing));
+                }
             }
 
-            Header[] headers = new Header[2];
-            headers[0] = new BasicHeader("User-Agent", AppConstants.USER_AGENT);
-            headers[1] = new BasicHeader("Authorization", "bearer " + mPref.getStringValue(PreferenceUtil.ACCESS_TOKEN));
-            client.get(context,subredditsUrl,headers,null,new JsonHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                if (callback != null) callback.onFailure(String.valueOf(statusCode));
+            }
+        });
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    try {
-                        JSONArray children = response.getJSONObject("data").getJSONArray("children");
-
-                        List<Subreddit> subreddits = new ArrayList<>();
-
-                        // add Front Page as first tab
-                        subreddits.add(new Subreddit(null,
-                                App.getAppInstance().getAppContext().getResources().getString(R.string.front_page), true));
-
-                        for (int i = 0; i < children.length(); i++) {
-                            JSONObject subredditData = children.getJSONObject(i).getJSONObject("data");
-
-                            Subreddit subreddit = new Subreddit(subredditData.getString("id"),
-                                    subredditData.getString("display_name"), true);
-
-                            subreddits.add(subreddit);
-
-                            mPref.saveSubreddits(subreddits);
-                        }
-
-                        if (callback != null) callback.onSuccess(subreddits);
-                    } catch (JSONException e) {
-                        if (callback != null)
-                            callback.onFailure(App.getAppInstance().getAppContext().getResources().getString(R.string.error_parsing));
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    if (callback != null) callback.onFailure(String.valueOf(statusCode));
-                }
-            });
-
-        }
+        // }
     }
 
 
-    public  void vote(String itemFullName, int voteDir, final Callback<Void> callback) {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+    public void vote(String itemFullName, int voteDir, final Callback<Void> callback) {
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
         if (itemFullName == null) throw new IllegalArgumentException("'itemId' cannot be null");
@@ -257,33 +241,34 @@ public class RedditRestClient {
             client.post(AppConstants.AUTH_API_BASE + "/api/vote", params, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    Log.e("vote","success: "+response.toString());
+                    Log.e("vote", "success: " + response.toString());
                     if (callback != null) callback.onSuccess(null);
 
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    Log.e("vote","Failure: "+throwable.getMessage());
+                    Log.e("vote", "Failure: " + throwable.getMessage());
                     if (callback != null) callback.onFailure(throwable.getMessage());
                 }
+
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String string, Throwable throwable) {
-                    Log.e("Vote:","onFailure: "+statusCode+" "+throwable.toString());
+                    Log.e("Vote:", "onFailure: " + statusCode + " " + throwable.toString());
                     if (callback != null) callback.onFailure(string);
                 }
             });
         } else {
             if (callback != null) {
-                String message=App.getAppInstance().getAppContext().getResources().getString(R.string.error_not_authorized);
-                Log.e("vote","Failure: "+message);
+                String message = App.getAppInstance().getAppContext().getResources().getString(R.string.error_not_authorized);
+                Log.e("vote", "Failure: " + message);
                 callback.onFailure(message);
             }
         }
     }
 
-    public  void getPosts(String subreddit, String sort, String after, final Callback<List<Post>> callback) {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+    public void getPosts(String subreddit, String sort, String after, final Callback<List<Post>> callback) {
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
         sort = sort.toLowerCase();
@@ -315,7 +300,7 @@ public class RedditRestClient {
 
                     List<Post> posts = new ArrayList<>();
 
-                    for (int i=0; i<children.length(); i++) {
+                    for (int i = 0; i < children.length(); i++) {
                         JSONObject postData = children.getJSONObject(i).getJSONObject("data");
 
                         Post post = new Post();
@@ -336,7 +321,7 @@ public class RedditRestClient {
                         post.setIsSelf(postData.getBoolean("is_self"));
                         post.setSelftext(postData.getString("selftext_html"));
 
-                        if (i == children.length()-1) {
+                        if (i == children.length() - 1) {
                             post.setAfter(after.equals("null") ? null : after);
                         } else {
                             post.setAfter(null);
@@ -360,7 +345,7 @@ public class RedditRestClient {
     }
 
     public void getComments(String subreddit, String postId, String sort, final Callback<List<Comment>> callback) {
-        if (mPref.getTokenIfNotExpired()==null || mPref.getTokenIfNotExpired().isEmpty())
+        if (mPref.getTokenIfNotExpired() == null || mPref.getTokenIfNotExpired().isEmpty())
             return;
 
         sort = sort.toLowerCase();
@@ -398,7 +383,7 @@ public class RedditRestClient {
         });
     }
 
-    private  void parseComments(List<Comment> comments, JSONObject thread, int level) throws JSONException {
+    private void parseComments(List<Comment> comments, JSONObject thread, int level) throws JSONException {
         if (thread.getString("kind").equals("t1")) {
             JSONObject commentData = thread.getJSONObject("data");
 
@@ -422,7 +407,6 @@ public class RedditRestClient {
             }
         }
     }
-
 
 
 }

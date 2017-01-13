@@ -1,9 +1,13 @@
 package com.app.reddit.ui.fragments;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,10 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.reddit.R;
-import com.app.reddit.api.Callback;
-import com.app.reddit.api.RedditRestClient;
+import com.app.reddit.asyntask.LoadSubredditsAsynTask;
 import com.app.reddit.events.SubredditPreferencesUpdatedEvent;
 import com.app.reddit.models.Subreddit;
+import com.app.reddit.provider.RedditProvider;
+import com.app.reddit.utils.AppUtils;
 import com.app.reddit.utils.PreferenceUtil;
 
 import java.util.ArrayList;
@@ -29,12 +34,13 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 
-public class ManageSubredditsFragment extends Fragment {
+public class ManageSubredditsFragment extends Fragment implements  LoaderManager.LoaderCallbacks<Cursor>{
 
     private ProgressBar progressBar;
     private RecyclerView subredditsRecyclerView;
     private SubredditsAdapter subredditsAdapter;
     private PreferenceUtil mPre;
+    private List<Subreddit> subredditList=new ArrayList<>();
 
     @Nullable
     @Override
@@ -48,12 +54,16 @@ public class ManageSubredditsFragment extends Fragment {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         progressBar = (ProgressBar) view.findViewById(R.id.progress_circular);
         subredditsRecyclerView = (RecyclerView) view.findViewById(R.id.subreddits_recyclerview);
+        subredditsRecyclerView.setVisibility(View.VISIBLE);
 
         /**
          * Configure recycler view
          */
 
         subredditsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        subredditsAdapter = new SubredditsAdapter(subredditList);
+        subredditsRecyclerView.setAdapter(subredditsAdapter);
 
         /**
          * Setup toolbar
@@ -87,11 +97,12 @@ public class ManageSubredditsFragment extends Fragment {
                         Toast.makeText(getActivity(), R.string.error_atleast_one_selected_subreddit, Toast.LENGTH_LONG)
                                 .show();
                     } else {
-                        mPre.saveSubreddits(subreddits);
-                        Toast.makeText(getActivity(), R.string.success_subreddit_preferences_updated, Toast.LENGTH_SHORT)
-                                .show();
-                        getActivity().onBackPressed();
-                        EventBus.getDefault().post(new SubredditPreferencesUpdatedEvent(subreddits));
+                        //mPre.saveSubreddits(subreddits);
+                        saveRedditListLocally(subreddits);
+//                        Toast.makeText(getActivity(), R.string.success_subreddit_preferences_updated, Toast.LENGTH_SHORT)
+//                                .show();
+//                        getActivity().onBackPressed();
+//                        EventBus.getDefault().post(new SubredditPreferencesUpdatedEvent(subreddits));
                     }
 
                     return true;
@@ -105,32 +116,37 @@ public class ManageSubredditsFragment extends Fragment {
             }
         });
 
-        /**
-         * Load subreddits and set recyclerview adapter
-         */
-
-        new RedditRestClient(getActivity()).getSubreddits(new Callback<List<Subreddit>>() {
-
-            @Override
-            public void onSuccess(List<Subreddit> data) {
-                progressBar.setVisibility(View.INVISIBLE);
-                subredditsRecyclerView.setVisibility(View.VISIBLE);
-
-                subredditsAdapter = new SubredditsAdapter(data);
-                subredditsRecyclerView.setAdapter(subredditsAdapter);
-            }
-
-            @Override
-            public void onFailure(String message) {
-                if (message != null)
-                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
-            }
-        });
 
 
         return view;
 
     }
+
+    private void saveRedditListLocally(final List<Subreddit> data){
+        new LoadSubredditsAsynTask(getContext(),progressBar, data, new LoadSubredditsAsynTask.SubredditSavedLocallyCallback() {
+            @Override
+            public void onSave(boolean isSaved) {
+                if (isSaved) {
+                    Toast.makeText(getActivity(), R.string.success_subreddit_preferences_updated, Toast.LENGTH_SHORT)
+                            .show();
+                    getActivity().onBackPressed();
+                    EventBus.getDefault().post(new SubredditPreferencesUpdatedEvent(data));
+                }
+            }
+        }).execute();
+
+    }
+
+
+
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(0,null,this);
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public void onAttach(Context context) {
@@ -141,14 +157,41 @@ public class ManageSubredditsFragment extends Fragment {
 
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext(), RedditProvider.CONTENT_URI,null,null,null,null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        progressBar.setVisibility(View.INVISIBLE);
+        subredditsAdapter.updateList(AppUtils.getSubredditsList(data));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        subredditsAdapter.updateList(AppUtils.getSubredditsList(null));
+    }
+
+
+
+
     private class SubredditsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private final List<Subreddit> selectedSubreddits;
-        private final List<Subreddit> unselectedSubreddits;
+        private List<Subreddit> selectedSubreddits=new ArrayList<>();
+        private List<Subreddit> unselectedSubreddits=new ArrayList<>();
 
         public SubredditsAdapter(List<Subreddit> subreddits) {
-            selectedSubreddits = new ArrayList<>();
-            unselectedSubreddits = new ArrayList<>();
+            updateList(subreddits);
+        }
+
+        public void updateList(List<Subreddit> subreddits) {
+            selectedSubreddits.clear();
+            unselectedSubreddits.clear();
+            notifyDataSetChanged();
+
+            if (subreddits==null || subreddits.isEmpty())
+                return;
 
             for (Subreddit subreddit : subreddits) {
                 if (subreddit.isSelected()) {
@@ -157,6 +200,7 @@ public class ManageSubredditsFragment extends Fragment {
                     unselectedSubreddits.add(subreddit);
                 }
             }
+            notifyDataSetChanged();
         }
 
         @Override
@@ -187,6 +231,9 @@ public class ManageSubredditsFragment extends Fragment {
         public int getItemCount() {
             return 1 + selectedSubreddits.size() + 1 + unselectedSubreddits.size();
         }
+
+
+
 
         public List<Subreddit> getSubreddits() {
             ArrayList<Subreddit> subreddits = new ArrayList<>(selectedSubreddits);
@@ -229,6 +276,8 @@ public class ManageSubredditsFragment extends Fragment {
 
             notifyDataSetChanged();
         }
+
+
 
         public class HeadingViewHolder extends RecyclerView.ViewHolder {
 

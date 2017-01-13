@@ -2,6 +2,7 @@ package com.app.reddit.utils;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebView;
@@ -12,6 +13,10 @@ import com.app.reddit.R;
 import com.app.reddit.base.App;
 import com.app.reddit.base.AppConstants;
 import com.app.reddit.interfaces.AuthenticationListener;
+import com.app.reddit.models.Subreddit;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mukesh on 28/12/16.
@@ -19,28 +24,28 @@ import com.app.reddit.interfaces.AuthenticationListener;
 
 @SuppressWarnings("deprecation")
 public class AppUtils {
-    public static String getFirstLetterCapsString(String string){
-        if (string==null || string.isEmpty())
+    public static String getFirstLetterCapsString(String string) {
+        if (string == null || string.isEmpty())
             return string;
 
         return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
-    public static void showToastShort(String message){
+    public static void showToastShort(String message) {
         Toast.makeText(App.getAppInstance().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    public static void showToastLong(String message){
+    public static void showToastLong(String message) {
         Toast.makeText(App.getAppInstance().getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
-    public static void showAuthDialog(final Activity activity, final AuthenticationListener listener){
-        final PreferenceUtil mPref=new PreferenceUtil(activity);
+    public static void showAuthDialog(final Activity activity, final AuthenticationListener listener) {
+        final PreferenceUtil mPref = new PreferenceUtil(activity);
         final Dialog auth_dialog = new Dialog(activity);
         auth_dialog.setContentView(R.layout.auth_dialog);
         WebView web = (WebView) auth_dialog.findViewById(R.id.webv);
         web.getSettings().setJavaScriptEnabled(true);
-        String url = AppConstants.OAUTH_URL + "?client_id=" + AppConstants.CLIENT_ID + "&response_type=code&state=" + AppConstants.STATE + "&redirect_uri=" + AppConstants.REDIRECT_URI + "&scope=" + AppConstants.OAUTH_SCOPE+"&duration="+AppConstants.DURATION;
+        String url = AppConstants.OAUTH_URL + "?client_id=" + AppConstants.CLIENT_ID + "&response_type=code&state=" + AppConstants.STATE + "&redirect_uri=" + AppConstants.REDIRECT_URI + "&scope=" + AppConstants.OAUTH_SCOPE + "&duration=" + AppConstants.DURATION;
         web.loadUrl(url);
 
 
@@ -62,14 +67,14 @@ public class AppUtils {
                     Log.i("", "CODE : " + authCode);
                     mPref.save(PreferenceUtil.AUTH_CODE, authCode);
                     auth_dialog.dismiss();
-                    if (listener!=null)
+                    if (listener != null)
                         listener.onSuccess(authCode);
 
 
                 } else if (url.contains("error=access_denied")) {
                     Log.i("", "ACCESS_DENIED_HERE");
                     auth_dialog.dismiss();
-                    if (listener!=null)
+                    if (listener != null)
                         listener.onFailure(activity.getString(R.string.access_denied));
 
                 }
@@ -78,6 +83,21 @@ public class AppUtils {
         auth_dialog.show();
         auth_dialog.setTitle("Authorize");
         auth_dialog.setCancelable(true);
+    }
+
+
+    public static List<Subreddit> getSubredditsList(Cursor cursor) {
+        List<Subreddit> list = new ArrayList<>();
+        if (cursor == null || cursor.getCount() == 0)
+            return list;
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            Subreddit s = new Subreddit(cursor.getString(0), cursor.getString(1), cursor.getInt(2));
+            list.add(s);
+            cursor.moveToNext();
+        }
+
+        return list;
     }
 
 

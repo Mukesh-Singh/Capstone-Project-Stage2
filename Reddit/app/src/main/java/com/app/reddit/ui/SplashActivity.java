@@ -28,6 +28,7 @@ public class SplashActivity extends AppCompatActivity {
     private Button auth;
     private final String DEVICE_ID = UUID.randomUUID().toString();
     private ProgressBar progressBar;
+    public static final String UPDATE_SUBREDDITS = "update_subreddits";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,12 +62,11 @@ public class SplashActivity extends AppCompatActivity {
         });
 
 
-        if (mPref.getTokenIfNotExpired()!=null && !mPref.getTokenIfNotExpired().isEmpty()) {
+        if (mPref.getTokenIfNotExpired() != null && !mPref.getTokenIfNotExpired().isEmpty()) {
             if (authCode == null || authCode.isEmpty()) {
                 auth.setVisibility(View.VISIBLE);
             } else {
-                startActivity(new Intent(SplashActivity.this, HomeActivity.class));
-                finish();
+                goToHomeScreen(false);
             }
 
         }
@@ -95,8 +95,7 @@ public class SplashActivity extends AppCompatActivity {
         return new Callback() {
             @Override
             public void onSuccess(Object data) {
-                startActivity(new Intent(SplashActivity.this, HomeActivity.class));
-                finish();
+                goToHomeScreen(true);
             }
 
             @Override
@@ -108,7 +107,12 @@ public class SplashActivity extends AppCompatActivity {
         };
     }
 
-
+    private void goToHomeScreen(boolean updateSubreddits) {
+        Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+        intent.putExtra(UPDATE_SUBREDDITS, updateSubreddits);
+        startActivity(intent);
+        finish();
+    }
 
 
     @Override

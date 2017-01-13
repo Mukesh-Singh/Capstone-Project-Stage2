@@ -10,6 +10,7 @@
         android:padding="3dp"
         android:id="@+id/post_title_container"
         android:background="?selectableItemBackground"
+        android:transitionName="@string/transition_comment_header"
         >
         <ImageView
             android:id="@+id/thumbnail_imageview"
